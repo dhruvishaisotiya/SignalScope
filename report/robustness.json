@@ -1,0 +1,20 @@
+{
+  "clean": {
+    "accuracy": 0.901
+  },
+  "jpeg_q80": {
+    "accuracy": 0.899
+  },
+  "jpeg_q60": {
+    "accuracy": 0.859
+  },
+  "jpeg_q40": {
+    "accuracy": 0.867
+  },
+  "resize_0.5x": {
+    "accuracy": 0.639
+  },
+  "screenshot_sim": {
+    "accuracy": 0.648
+  }
+}

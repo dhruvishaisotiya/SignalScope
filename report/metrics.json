@@ -1,0 +1,26 @@
+{
+  "core_test_set": "CIFAKE held-out test split (20k images, never trained on)",
+  "n_test": 20000,
+  "roc_auc": 0.97297676,
+  "macro_f1": 0.9003491038700082,
+  "accuracy_at_threshold": 0.90065,
+  "threshold": 0.5,
+  "false_positive_rate": 0.1543,
+  "false_negative_rate": 0.0444,
+  "confusion_matrix": [
+    [
+      8457,
+      1543
+    ],
+    [
+      444,
+      9556
+    ]
+  ],
+  "realworld_highres_check": {
+    "what": "views of real photos (BSDS500) and genuine diffusion outputs whose SOURCE IMAGES were excluded from training",
+    "n": 1076,
+    "roc_auc": 0.882171875,
+    "accuracy_at_threshold": 0.8271375464684015
+  }
+}

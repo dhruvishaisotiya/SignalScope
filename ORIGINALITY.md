@@ -5,6 +5,7 @@ window (10-15 September 2026) for this problem statement. No public
 real-vs-fake notebook was copied.
 
 ## Third-party components used (allowed & cited per §8)
+
 - Libraries: Flask, NumPy, OpenCV, scikit-learn, joblib, Matplotlib, Pillow,
   onnxruntime, PyTorch + torchvision (training only, on Google Colab).
 - Pretrained backbone: EfficientNet-B0 ImageNet weights (torchvision), used
@@ -18,3 +19,8 @@ real-vs-fake notebook was copied.
   evaluation are what get scored").
 
 No images of real, identifiable people were scraped or added by the team.
+
+---
+
+Declared by Team C-433: Isotiya Dhruvisha, Gadhiya Priyanshi, Shah Arya,
+Shah Dhruvi, Ruparelia Sanjna, Chauhan Janhvi.

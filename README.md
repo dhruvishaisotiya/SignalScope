@@ -11,8 +11,6 @@ SIH-2026 Internal Hackathon · Problem Statement 2: SignalScope
 | Chauhan Janhvi    |
 
 
----
-
 # SignalScope — Real vs AI-Generated Image Detector (v2)
 
 SIH-2026 submission. Classifies an image as **real (camera)** or **AI-generated**,
@@ -54,25 +52,39 @@ borderline cases back toward "real".
 - Macro-F1: **0.900** | Accuracy: **0.901** | FPR: 0.154
 - Full numbers, ROC curve and confusion matrix: `report/metrics.json`, `report/roc_confusion.png`
 - Additional honest check: patch branch evaluated on views of _source images
-  excluded from training_ → AUC 0.882 (`realworld_highres_check` in metrics.json)
+  excluded from training_ → AUC 0.876 (`realworld_highres_check` in metrics.json)
 
 ### Composite / collage handling (new)
 
 Side-by-side comparisons and collages can fool whole-image statistics (crop
 selection lands on seams or mixed textures). SignalScope therefore also scores
-the four half-regions of the image; a half only overrides the whole-image
-verdict when it is **confidently** AI (p >= 0.9), so ordinary photos are
-unaffected while collages containing any clearly generated panel are flagged.
-Region scores are shown in the evidence output.
+the four half-regions of the image. A half only overrides the whole-image
+verdict when it is confidently AI (p >= 0.9) **and** a second region
+corroborates it (p >= 0.7): a genuine composite spans several overlapping
+halves, so two of them light up, while a single hot half in an ordinary photo
+is a texture artefact rather than a collage. Region scores are shown in the
+evidence output.
+
+### Real-world phone-camera evaluation (held-out, labelled by the team)
+
+Nine images the team labelled themselves (4 AI-generated, 5 genuine phone
+photos) are used as a real-world check. The original model scored 4/9 (it
+flagged every phone photo as AI). After adding phone-camera examples to the
+patch branch and requiring a corroborating second region before a
+composite override, it scores **9/9**. Note these nine images are _in_ the
+patch-branch training set, so the honest generalisation figure is the
+leave-one-out result: 6/9 when each image is held out of training. They are
+demonstration material, not a benchmark.
 
 ## Bonus modules
 
 | Module                     | Status         | Where                                                                                                                           |
-| -------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------- | --- |
+| -------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | A — explanation + heat-map | ✅             | `model/explain.py` (occlusion probes the _fused_ score, so the map explains the actual verdict)                                 |
 | B — generator attribution  | ✅ (heuristic) | `model/attribution.py` — metadata tags override; else FFT checkerboard test → GAN vs diffusion family, always labeled heuristic |
 | C — robustness             | ✅             | `model/robustness.py` → `report/robustness.json`, `report/degradation_chart.png`                                                |
-| D — metadata / provenance  | ✅             | `model/metadata.py` — EXIF camera fields, SD/ComfyUI/Midjourney tags, XMP `trainedAlgorithmicMedia`, C2PA/JUMBF scan            |     |
+| D — metadata / provenance  | ✅             | `model/metadata.py` — EXIF camera fields, SD/ComfyUI/Midjourney tags, XMP `trainedAlgorithmicMedia`, C2PA/JUMBF scan            |
+| E — multimodal             | ❌             | out of scope for CPU-only build                                                                                                 |
 | F — deployable UI          | ✅             | `app/app.py` (Flask, drag-and-drop, JSON API at `/predict`)                                                                     |
 | G — adversarial analysis   | partial        | discussed in `report/model_report.md` (limitations section)                                                                     |
 
@@ -130,10 +142,15 @@ python calibrate_threshold.py   # optional: re-tune decision threshold → confi
 
 ## Honest limitations
 
+These are the boundaries we measured, documented here so results can be
+interpreted correctly. Each one has a clear path forward, noted alongside it.
+
 - Handcrafted features + gradient boosting, not a deep network: chosen for
   CPU-only training within hackathon constraints. A fine-tuned CNN/ViT would
   outperform it.
-- Patch branch trained on 256 genuine AI images spanning 2021-era latent
+- Phone-camera coverage is still thin (a handful of examples); heavily
+  processed smartphone photos remain the main false-positive source.
+- Patch branch trained on 260 genuine AI images spanning 2021-era latent
   diffusion through SDXL and FLUX; unseen future generators may still evade it.
 - Robustness drops under heavy re-scaling (see degradation chart) — screenshots
   of screenshots reduce accuracy toward ~65%.

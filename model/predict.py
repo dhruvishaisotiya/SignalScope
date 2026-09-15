@@ -141,14 +141,20 @@ def visual_score_regions(img_bgr, bundle) -> dict:
         }
         for name, part in halves.items():
             regions[name] = _region_p(part)
-    strongest = max(regions, key=regions.get)
+    ordered = sorted(regions.items(), key=lambda kv: kv[1], reverse=True)
+    strongest = ordered[0][0]
+    # second-highest EXCLUDING the whole-image score, which is the thing we
+    # would be overriding
+    others = [v for k, v in ordered if k not in ("full", strongest)]
+    second = others[0] if others else 0.0
     out = dict(full)
     # A sub-region only overrides the whole-image verdict when it is
-    # CONFIDENTLY AI (>=0.9). Half of a normal photo can be mildly atypical
-    # (sky, bokeh, texture); demanding strong evidence keeps the false-positive
-    # rate on ordinary photos unchanged while still catching collages where
-    # one panel is clearly generated.
-    if strongest != "full" and regions[strongest] >= 0.90 and full["p_visual"] < regions[strongest]:
+    # CONFIDENTLY AI (>=0.9) *and* a second region corroborates it (>=0.7).
+    # In a real composite the generated panel spans several overlapping
+    # halves, so two of them light up; a single hot half with everything
+    # else near zero is a texture artefact in an ordinary photo, not a collage.
+    if (strongest != "full" and regions[strongest] >= 0.90 and second >= 0.70
+            and full["p_visual"] < regions[strongest]):
         out["p_visual"] = regions[strongest]
     out["region_scores"] = {k: round(v, 4) for k, v in regions.items()}
     out["strongest_region"] = strongest if out["p_visual"] == regions[strongest] else "full"

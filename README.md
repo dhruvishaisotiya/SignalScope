@@ -1,4 +1,4 @@
-**Team C-433 — L. J. Institute of Engineering and Technology**
+**— L. J. Institute of Engineering and Technology**
 SIH-2026 Internal Hackathon · Problem Statement 2: SignalScope
 
 | Team members      |
@@ -10,6 +10,9 @@ SIH-2026 Internal Hackathon · Problem Statement 2: SignalScope
 | Ruparelia Sanjna  |
 | Chauhan Janhvi    |
 
+**Demo video link:** (https://drive.google.com/file/d/1xpHz7obQGeD2SdhC2OXn6KMmqFx6jGaf/view?usp=drive_link)
+
+---
 
 # SignalScope — Real vs AI-Generated Image Detector (v2)
 
@@ -84,9 +87,9 @@ demonstration material, not a benchmark.
 | B — generator attribution  | ✅ (heuristic) | `model/attribution.py` — metadata tags override; else FFT checkerboard test → GAN vs diffusion family, always labeled heuristic |
 | C — robustness             | ✅             | `model/robustness.py` → `report/robustness.json`, `report/degradation_chart.png`                                                |
 | D — metadata / provenance  | ✅             | `model/metadata.py` — EXIF camera fields, SD/ComfyUI/Midjourney tags, XMP `trainedAlgorithmicMedia`, C2PA/JUMBF scan            |
-| E — multimodal             | ❌             | out of scope for CPU-only build                                                                                                 |
-| F — deployable UI          | ✅             | `app/app.py` (Flask, drag-and-drop, JSON API at `/predict`)                                                                     |
-| G — adversarial analysis   | partial        | discussed in `report/model_report.md` (limitations section)                                                                     |
+
+| F — deployable UI | ✅ | `app/app.py` (Flask, drag-and-drop, JSON API at `/predict`) |
+| G — adversarial analysis | partial | discussed in `report/model_report.md` (limitations section) |
 
 ## Ensemble verdict (when the deep model is installed)
 

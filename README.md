@@ -1,3 +1,18 @@
+**Team C-433 — L. J. Institute of Engineering and Technology**
+SIH-2026 Internal Hackathon · Problem Statement 2: SignalScope
+
+| Team members      |
+| ----------------- |
+| Isotiya Dhruvisha |
+| Gadhiya Priyanshi |
+| Shah Arya         |
+| Shah Dhruvi       |
+| Ruparelia Sanjna  |
+| Chauhan Janhvi    |
+
+
+---
+
 # SignalScope — Real vs AI-Generated Image Detector (v2)
 
 SIH-2026 submission. Classifies an image as **real (camera)** or **AI-generated**,
@@ -12,16 +27,16 @@ v1 had a critical flaw: **real camera photos were flagged as AI ~9 times out of 
 Root cause: the model was trained only on CIFAKE, whose "real" images are 32×32
 CIFAR thumbnails. A high-resolution camera photo, downscaled to the analysis
 size, has completely different statistics from anything in training — so it fell
-on the "AI" side of the decision boundary. This is a *domain gap*, not a labeling
+on the "AI" side of the decision boundary. This is a _domain gap_, not a labeling
 problem.
 
 v2 fixes it with a **two-branch model + evidence fusion**:
 
-| Branch | Input | Trained on | Catches |
-|---|---|---|---|
-| **Global** | whole image at 32×32 (INTER_AREA), with "delivery" augmentation (re-resize + JPEG) | CIFAKE 100k (×2 augmented views = 200k rows) | low-res / thumbnail-scale artifacts |
-| **Patch** (new) | 74-dim stats over the 16 highest-variance native-resolution 32×32 crops | 500 real photos (BSDS500) vs 256 genuine AI outputs (official sample images from Stable Diffusion, DiT, VQGAN, **SDXL and FLUX** repos) | presence/absence of real sensor noise at native resolution |
-| **Metadata** (Module D) | file bytes: EXIF, PNG text chunks, XMP, C2PA markers | rule-based | camera provenance vs generator tags |
+| Branch                  | Input                                                                              | Trained on                                                                                                                              | Catches                                                    |
+| ----------------------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| **Global**              | whole image at 32×32 (INTER_AREA), with "delivery" augmentation (re-resize + JPEG) | CIFAKE 100k (×2 augmented views = 200k rows)                                                                                            | low-res / thumbnail-scale artifacts                        |
+| **Patch** (new)         | 74-dim stats over the 16 highest-variance native-resolution 32×32 crops            | 500 real photos (BSDS500) vs 256 genuine AI outputs (official sample images from Stable Diffusion, DiT, VQGAN, **SDXL and FLUX** repos) | presence/absence of real sensor noise at native resolution |
+| **Metadata** (Module D) | file bytes: EXIF, PNG text chunks, XMP, C2PA markers                               | rule-based                                                                                                                              | camera provenance vs generator tags                        |
 
 Fusion: `p_final = sigmoid((1-w)·logit(p_global) + w·logit(p_patch) + metadata_shift)`
 where `w` ramps from 0 (small images) to 0.8 (≥256 px). Threshold in
@@ -38,8 +53,8 @@ borderline cases back toward "real".
 - ROC-AUC: **0.973** (v1: 0.958)
 - Macro-F1: **0.900** | Accuracy: **0.901** | FPR: 0.154
 - Full numbers, ROC curve and confusion matrix: `report/metrics.json`, `report/roc_confusion.png`
-- Additional honest check: patch branch evaluated on views of *source images
-  excluded from training* → AUC 0.882 (`realworld_highres_check` in metrics.json)
+- Additional honest check: patch branch evaluated on views of _source images
+  excluded from training_ → AUC 0.882 (`realworld_highres_check` in metrics.json)
 
 ### Composite / collage handling (new)
 
@@ -52,15 +67,14 @@ Region scores are shown in the evidence output.
 
 ## Bonus modules
 
-| Module | Status | Where |
-|---|---|---|
-| A — explanation + heat-map | ✅ | `model/explain.py` (occlusion probes the *fused* score, so the map explains the actual verdict) |
-| B — generator attribution | ✅ (heuristic) | `model/attribution.py` — metadata tags override; else FFT checkerboard test → GAN vs diffusion family, always labeled heuristic |
-| C — robustness | ✅ | `model/robustness.py` → `report/robustness.json`, `report/degradation_chart.png` |
-| D — metadata / provenance | ✅ | `model/metadata.py` — EXIF camera fields, SD/ComfyUI/Midjourney tags, XMP `trainedAlgorithmicMedia`, C2PA/JUMBF scan |
-| E — multimodal | ❌ | out of scope for CPU-only build |
-| F — deployable UI | ✅ | `app/app.py` (Flask, drag-and-drop, JSON API at `/predict`) |
-| G — adversarial analysis | partial | discussed in `report/model_report.md` (limitations section) |
+| Module                     | Status         | Where                                                                                                                           |
+| -------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------- | --- |
+| A — explanation + heat-map | ✅             | `model/explain.py` (occlusion probes the _fused_ score, so the map explains the actual verdict)                                 |
+| B — generator attribution  | ✅ (heuristic) | `model/attribution.py` — metadata tags override; else FFT checkerboard test → GAN vs diffusion family, always labeled heuristic |
+| C — robustness             | ✅             | `model/robustness.py` → `report/robustness.json`, `report/degradation_chart.png`                                                |
+| D — metadata / provenance  | ✅             | `model/metadata.py` — EXIF camera fields, SD/ComfyUI/Midjourney tags, XMP `trainedAlgorithmicMedia`, C2PA/JUMBF scan            |     |
+| F — deployable UI          | ✅             | `app/app.py` (Flask, drag-and-drop, JSON API at `/predict`)                                                                     |
+| G — adversarial analysis   | partial        | discussed in `report/model_report.md` (limitations section)                                                                     |
 
 ## Ensemble verdict (when the deep model is installed)
 
@@ -96,6 +110,7 @@ cd app && python app.py        # open http://localhost:5006
 ```
 
 CLI:
+
 ```bash
 python model/predict.py --image path/to/img.jpg --json --heatmap out.png
 ```
@@ -126,14 +141,13 @@ python calibrate_threshold.py   # optional: re-tune decision threshold → confi
   classifier — labeled as such everywhere it appears.
 - Output is a probabilistic likelihood, **not** a forensic certification.
 
-
 ## SIH submission checklist (§7)
+
 - [x] `/app` source code, `/model` training + predict interface, `/report` model report
 - [x] `requirements.txt`, setup runs a prediction in well under 10 minutes
 - [x] Datasets & licences cited (above); `ORIGINALITY.md` per §8
 - [x] Metrics: AUC / macro-F1 / confusion matrix / FPR at threshold in `report/`
-- [ ] Demo video link: ADD YOUR 3-5 MIN VIDEO LINK HERE
-- [ ] Commits pushed within the 10-15 Sept window
+- [x] Commits pushed within the 10-15 Sept window
 
 Predict interface (for organizer evaluation, §4.1):
 `python model/predict.py --image <path> --json` -> label + probability.
